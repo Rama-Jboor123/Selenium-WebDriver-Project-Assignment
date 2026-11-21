@@ -1,0 +1,9 @@
+.idea/
+target/
+
+### Maven ###
+.mvn/timing.properties
+
+### OS ###
+.DS_Store
+Thumbs.db
