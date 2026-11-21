@@ -1,0 +1,11 @@
+.idea/
+target/
+
+### Maven ###
+config.local.properties
+src/test/resources/config.local.properties
+.mvn/timing.properties
+
+### OS ###
+.DS_Store
+Thumbs.db
