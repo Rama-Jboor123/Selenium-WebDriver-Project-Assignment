@@ -25,6 +25,7 @@ mvn test -Dbrowser=chrome
 mvn test -Dbrowser=firefox
 mvn test -Dbrowser=edge
 mvn test -Dbrowser=chrome -Dheadless=true
+mvn test -Dcucumber.filter.tags=@TC01
 ```
 
 Browser binaries are resolved automatically by Selenium Manager. Cucumber feature files should be added under `src/test/resources/features/`; step definitions belong under `com.ramajboor.selenium.steps`. CSV test data is loaded from `src/test/resources/testdata/`.
