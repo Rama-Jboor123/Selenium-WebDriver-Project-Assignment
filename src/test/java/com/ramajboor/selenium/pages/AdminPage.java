@@ -20,6 +20,15 @@ public class AdminPage extends BasePage {
     private final By searchButton = By.xpath("//button[normalize-space()='Search']");
     private final By tableRows = By.cssSelector(".oxd-table-body .oxd-table-card");
     private final By tableLoader = By.cssSelector(".oxd-loading-spinner, .oxd-table-loader");
+    private String resultsBeforeUpdate = "";
+    private final By userRoleDropdown = By.xpath(
+            "//label[text()='User Role']/ancestor::div[contains(@class,'oxd-input-group')]//div[contains(@class,'oxd-select-text')]"
+    );
+
+    private final By adminRoleOption = By.xpath(
+            "//div[@role='option']//span[normalize-space()='Admin']"
+    );
+
 
     public AdminPage(WebDriver driver) {
         super(driver);
@@ -51,8 +60,11 @@ public class AdminPage extends BasePage {
     }
 
     public void clickSearch() {
+        if (resultsBeforeUpdate.isEmpty()) {
+            resultsBeforeUpdate = getCurrentResultsSignature();
+        }
         click(searchButton);
-        waitForSearchResults();
+        waitForSearchResults(resultsBeforeUpdate);
     }
 
     public void searchByUsername(String username) {
@@ -60,10 +72,57 @@ public class AdminPage extends BasePage {
         clickSearch();
     }
 
+    public void selectUserRole(String role) {
+        resultsBeforeUpdate = getCurrentResultsSignature();
+        if (driver.findElements(userRoleDropdown).stream().noneMatch(WebElement::isDisplayed)) {
+            click(filterToggle);
+        }
+        click(userRoleDropdown);
+
+        By roleOption = By.xpath(
+                "//div[@role='option']//span[normalize-space()='" + role + "']"
+        );
+
+        click(roleOption);
+    }
+
+    public List<String> getDisplayedRoles() {
+        waitForSearchResults();
+
+        int roleColumnIndex = findColumnIndex("User Role");
+        List<String> roles = new ArrayList<>();
+        for (WebElement row : driver.findElements(tableRows)) {
+            try {
+                List<WebElement> cells = row.findElements(By.cssSelector(".oxd-table-cell"));
+                if (roleColumnIndex >= 0 && roleColumnIndex < cells.size()) {
+                    String value = extractLastLine(cells.get(roleColumnIndex).getText());
+                    if (!value.isEmpty() && !value.equalsIgnoreCase("User Role")) {
+                        roles.add(value);
+                    }
+                } else {
+                    for (WebElement cell : cells) {
+                        String cellText = cell.getText().replace("\u00a0", " ").trim();
+                        if (cellText.startsWith("User Role")) {
+                            String value = extractLastLine(cellText);
+                            if (!value.isEmpty() && !value.equalsIgnoreCase("User Role")) {
+                                roles.add(value);
+                            }
+                            break;
+                        }
+                    }
+                }
+
+            } catch (StaleElementReferenceException ignored) {
+                // The row is re-read from the table on the next search execution.
+            }
+        }
+        return roles;
+    }
+
     public List<String> getDisplayedUsernames() {
         waitForSearchResults();
 
-        int usernameColumnIndex = findUsernameColumnIndex();
+        int usernameColumnIndex = findColumnIndex("Username");
         List<String> usernames = new ArrayList<>();
         for (WebElement row : driver.findElements(tableRows)) {
             try {
@@ -81,10 +140,27 @@ public class AdminPage extends BasePage {
         return usernames;
     }
 
-    private int findUsernameColumnIndex() {
-        // Verified in the live DOM: Employee Name, blank selection column,
-        // Username, User Role, and Status are returned in that order.
-        return 2;
+    private int findColumnIndex(String expectedHeading) {
+        List<WebElement> headers = driver.findElements(By.cssSelector(
+                ".oxd-table-header-cell"));
+        for (int i = 0; i < headers.size(); i++) {
+            if (headers.get(i).getText().trim().equalsIgnoreCase(expectedHeading)) {
+                return i;
+            }
+        }
+
+        List<WebElement> rows = driver.findElements(tableRows);
+        if (!rows.isEmpty()) {
+            List<WebElement> firstRowCells = rows.get(0)
+                    .findElements(By.cssSelector(".oxd-table-cell"));
+            for (int i = 0; i < firstRowCells.size(); i++) {
+                if (firstRowCells.get(i).getText().trim().toLowerCase()
+                        .startsWith(expectedHeading.toLowerCase())) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     private String extractLastLine(String cellText) {
@@ -99,6 +175,10 @@ public class AdminPage extends BasePage {
     }
 
     private void waitForSearchResults() {
+        waitForSearchResults("");
+    }
+
+    private void waitForSearchResults(String previousSignature) {
         wait.until(currentDriver -> {
             List<WebElement> loaders = currentDriver.findElements(tableLoader);
             for (WebElement loader : loaders) {
@@ -108,6 +188,31 @@ public class AdminPage extends BasePage {
             }
             return true;
         });
-        wait.until(currentDriver -> !currentDriver.findElements(tableRows).isEmpty());
+
+        wait.until(currentDriver -> {
+            List<WebElement> rows = currentDriver.findElements(tableRows);
+            if (rows.isEmpty()) {
+                return false;
+            }
+            for (WebElement row : rows) {
+                if (row.isDisplayed() && !row.getText().trim().isEmpty()) {
+                    if (previousSignature.isEmpty()) {
+                        return true;
+                    }
+                    return !getCurrentResultsSignature().equals(previousSignature);
+                }
+            }
+            return false;
+        });
+    }
+
+    private String getCurrentResultsSignature() {
+        StringBuilder signature = new StringBuilder();
+        for (WebElement row : driver.findElements(tableRows)) {
+            if (row.isDisplayed()) {
+                signature.append(row.getText()).append('|');
+            }
+        }
+        return signature.toString();
     }
 }

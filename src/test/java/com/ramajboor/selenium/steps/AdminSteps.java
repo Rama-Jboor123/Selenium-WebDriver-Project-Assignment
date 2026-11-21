@@ -48,4 +48,38 @@ public class AdminSteps {
                     "A displayed result did not match the searched username.");
         }
     }
+
+    @Given("the administrator is on the system user page")
+    public void theAdministratorIsOnTheSystemUserPage() {
+        adminPage = new AdminPage(DriverFactory.getDriver());
+        adminPage.navigateToAdmin();
+        Assert.assertTrue(adminPage.isSystemUsersPageDisplayed(),
+                "The System Users page was not displayed.");
+    }
+
+    @When("the administrator filter using Role {string}")
+    public void theAdministratorFilterUsingRole(String role) {
+        adminPage.selectUserRole(role);
+        adminPage.clickSearch();
+    }
+    @Then("the filter results should contain Role {string}")
+    public void theSearchResultsShouldContainRole(String expectedRole) {
+        List<String> displayedRoles = adminPage.getDisplayedRoles();
+        Assert.assertFalse(displayedRoles.isEmpty(),
+                "The search results were empty; expected role: " + expectedRole);
+        Assert.assertTrue(displayedRoles.contains(expectedRole),
+                "Expected role '" + expectedRole
+                        + "' was not found in results: " + displayedRoles);
+    }
+
+    @Then("all displayed role should match {string}")
+    public void allDisplayedRolesShouldMatch(String expectedRole) {
+        List<String> displayedRoles = adminPage.getDisplayedRoles();
+        Assert.assertFalse(displayedRoles.isEmpty(),
+                "The search results were empty; expected role: " + expectedRole);
+        for (String role : displayedRoles) {
+            Assert.assertEquals(role, expectedRole,
+                    "A displayed result did not match the searched role.");
+        }
+    }
 }
