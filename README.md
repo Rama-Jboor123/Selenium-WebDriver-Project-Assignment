@@ -51,4 +51,4 @@ set ORANGEHRM_PASSWORD=your-local-password
 mvn test
 ```
 
-Alternatively, copy `config.local.properties.example` to `src/test/resources/config.local.properties` and provide `orangehrm.username` and `orangehrm.password`. The local file is gitignored and must not be committed.
+For IntelliJ IDEA, create `src/test/resources/config.local.properties` with `orangehrm.username` and `orangehrm.password`, or set `ORANGEHRM_USERNAME` and `ORANGEHRM_PASSWORD` in the test run configuration environment. The local file is gitignored and must not be committed.
