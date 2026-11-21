@@ -12,4 +12,6 @@ public class RecruitmentPage extends BasePage {
     public void open() {
         navigateToPath("web/index.php/recruitment/viewCandidates");
     }
+
+    // TODO: Add verified Recruitment locators and page actions here before implementing step definitions.
 }

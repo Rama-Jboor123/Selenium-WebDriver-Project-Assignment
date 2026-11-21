@@ -12,4 +12,6 @@ public class EmployeeListPage extends BasePage {
     public void open() {
         navigateToPath("web/index.php/pim/viewEmployeeList");
     }
+
+    // TODO: Add verified Employee List locators and page actions here before implementing step definitions.
 }

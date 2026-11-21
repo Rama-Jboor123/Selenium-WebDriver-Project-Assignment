@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="OrangeHRM Automation Suite" parallel="tests" thread-count="3">
-    <test name="Cucumber Parallel Tests">
+<suite name="OrangeHRM Automation Suite" parallel="methods" thread-count="3">
+    <test name="Cucumber Parallel Tests" parallel="methods" thread-count="3">
         <classes>
             <class name="com.ramajboor.selenium.runners.TestRunner"/>
         </classes>

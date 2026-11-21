@@ -12,4 +12,6 @@ public class AddCandidatePage extends BasePage {
     public void open() {
         navigateToPath("web/index.php/recruitment/addCandidate");
     }
+
+    // TODO: Add verified Add Candidate locators and page actions here before implementing step definitions.
 }

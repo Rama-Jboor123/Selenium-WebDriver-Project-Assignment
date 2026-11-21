@@ -28,3 +28,26 @@ mvn test -Dbrowser=chrome -Dheadless=true
 ```
 
 Browser binaries are resolved automatically by Selenium Manager. Cucumber feature files should be added under `src/test/resources/features/`; step definitions belong under `com.ramajboor.selenium.steps`. CSV test data is loaded from `src/test/resources/testdata/`.
+
+Configuration is defined in `src/test/resources/config.properties`. It can be overridden with Maven/system properties, for example `-Dbrowser=firefox`, `-Dheadless=true`, `-DbaseUrl=...` and `-DexplicitWait=20`. Parallel scenarios use `-DparallelThreads=3`.
+
+## Authentication setup
+
+Use the `@authenticated` tag on scenarios that require an OrangeHRM session:
+
+```gherkin
+@authenticated
+Scenario: Example placeholder
+```
+
+The framework does not count login itself as a scenario. Login runs through a reusable hook and `LoginPage.loginWithConfiguredCredentials()`.
+
+Set credentials with environment variables or a local ignored properties file:
+
+```bash
+set ORANGEHRM_USERNAME=your-local-user
+set ORANGEHRM_PASSWORD=your-local-password
+mvn test
+```
+
+Alternatively, copy `config.local.properties.example` to `src/test/resources/config.local.properties` and provide `orangehrm.username` and `orangehrm.password`. The local file is gitignored and must not be committed.

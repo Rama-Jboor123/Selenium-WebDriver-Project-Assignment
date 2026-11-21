@@ -1,6 +1,7 @@
 package com.ramajboor.selenium.hooks;
 
 import com.ramajboor.selenium.base.DriverFactory;
+import com.ramajboor.selenium.pages.LoginPage;
 import com.ramajboor.selenium.utils.ConfigReader;
 import com.ramajboor.selenium.utils.ScreenshotUtils;
 import io.cucumber.java.After;
@@ -10,24 +11,34 @@ import org.openqa.selenium.WebDriver;
 
 public class Hooks {
 
-    @Before
+    @Before(order = 1)
     public void setUp(Scenario scenario) {
         WebDriver driver = DriverFactory.initializeDriver();
         driver.get(ConfigReader.get("baseUrl", "https://opensource-demo.orangehrmlive.com/"));
     }
 
-    @After
-    public void tearDown(Scenario scenario) {
-        WebDriver driver;
-        try {
-            driver = DriverFactory.getDriver();
-        } catch (IllegalStateException e) {
-            return;
-        }
+    @Before(value = "@authenticated", order = 2)
+    public void authenticate() {
+        WebDriver driver = DriverFactory.getDriver();
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.open();
+        loginPage.loginWithConfiguredCredentials();
+    }
 
-        if (scenario.isFailed()) {
-            ScreenshotUtils.capture(driver, scenario.getName());
+    @After(order = 1)
+    public void tearDown(Scenario scenario) {
+        try {
+            WebDriver driver = DriverFactory.getDriver();
+
+            if (scenario.isFailed()) {
+                byte[] screenshot = ScreenshotUtils.captureBytes(driver);
+                scenario.attach(screenshot, "image/png", "failure-" + scenario.getName());
+                ScreenshotUtils.capture(driver, scenario.getName());
+            }
+        } catch (IllegalStateException | org.openqa.selenium.WebDriverException e) {
+            // Browser may already be unavailable during teardown.
+        } finally {
+            DriverFactory.quitDriver();
         }
-        DriverFactory.quitDriver();
     }
 }

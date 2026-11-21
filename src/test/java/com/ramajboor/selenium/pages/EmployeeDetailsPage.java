@@ -12,4 +12,6 @@ public class EmployeeDetailsPage extends BasePage {
     public void openByEmployeeId(String employeeId) {
         navigateToPath("web/index.php/pim/viewPersonalDetails/empNumber/" + employeeId);
     }
+
+    // TODO: Add verified Employee Details locators and page actions here before implementing step definitions.
 }

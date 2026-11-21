@@ -12,4 +12,6 @@ public class LeaveListPage extends BasePage {
     public void open() {
         navigateToPath("web/index.php/leave/viewLeaveList");
     }
+
+    // TODO: Add verified Leave List locators and page actions here before implementing step definitions.
 }

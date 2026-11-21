@@ -19,6 +19,13 @@ public final class ScreenshotUtils {
     private ScreenshotUtils() {
     }
 
+    public static byte[] captureBytes(WebDriver driver) {
+        if (!(driver instanceof TakesScreenshot screenshot)) {
+            throw new IllegalStateException("The active WebDriver does not support screenshots.");
+        }
+        return screenshot.getScreenshotAs(OutputType.BYTES);
+    }
+
     public static String capture(WebDriver driver, String name) {
         if (!(driver instanceof TakesScreenshot)) {
             throw new IllegalStateException("The active WebDriver does not support screenshots.");

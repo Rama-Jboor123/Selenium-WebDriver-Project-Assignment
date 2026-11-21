@@ -12,4 +12,6 @@ public class AddUserPage extends BasePage {
     public void open() {
         navigateToPath("web/index.php/admin/saveSystemUser");
     }
+
+    // TODO: Add verified Add User page locators and page actions here before implementing step definitions.
 }

@@ -21,6 +21,16 @@ public final class ConfigReader {
         } catch (IOException e) {
             throw new IllegalStateException("Unable to load config.properties", e);
         }
+
+        // Optional, developer-local file; add it to .gitignore and never commit credentials.
+        try (InputStream input = ConfigReader.class.getClassLoader()
+                .getResourceAsStream("config.local.properties")) {
+            if (input != null) {
+                properties.load(input);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to load config.local.properties", e);
+        }
         return properties;
     }
 
@@ -35,5 +45,22 @@ public final class ConfigReader {
     public static String get(String key, String defaultValue) {
         String value = get(key);
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    public static String getCredential(String environmentVariable, String propertyKey) {
+        String environmentValue = System.getenv(environmentVariable);
+        if (environmentValue != null && !environmentValue.isBlank()) {
+            return environmentValue;
+        }
+
+        String propertyValue = System.getProperty(propertyKey);
+        if (propertyValue == null || propertyValue.isBlank()) {
+            propertyValue = PROPERTIES.getProperty(propertyKey);
+        }
+        if (propertyValue == null || propertyValue.isBlank()) {
+            throw new IllegalStateException("Missing credential. Set " + environmentVariable
+                    + " or " + propertyKey + " in a local config file.");
+        }
+        return propertyValue;
     }
 }

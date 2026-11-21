@@ -24,6 +24,7 @@
         <testng.version>7.10.2</testng.version>
         <commons.csv.version>1.12.0</commons.csv.version>
         <maven.surefire.version>3.5.2</maven.surefire.version>
+        <parallelThreads>3</parallelThreads>
     </properties>
 
     <dependencies>
@@ -102,7 +103,7 @@
                     <properties>
                         <property>
                             <name>dataproviderthreadcount</name>
-                            <value>3</value>
+                            <value>${parallelThreads}</value>
                         </property>
                     </properties>
                 </configuration>

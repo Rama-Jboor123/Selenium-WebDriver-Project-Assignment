@@ -22,10 +22,8 @@ public final class DriverFactory {
             return existingDriver;
         }
 
-        String browser = System.getProperty("browser",
-                ConfigReader.get("browser", "chrome")).trim().toLowerCase();
-        boolean headless = Boolean.parseBoolean(System.getProperty("headless",
-                ConfigReader.get("headless", "false")));
+        String browser = ConfigReader.get("browser", "chrome").trim().toLowerCase();
+        boolean headless = Boolean.parseBoolean(ConfigReader.get("headless", "false"));
 
         WebDriver driver;
         switch (browser) {

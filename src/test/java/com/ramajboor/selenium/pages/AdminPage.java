@@ -12,4 +12,6 @@ public class AdminPage extends BasePage {
     public void open() {
         navigateToPath("web/index.php/admin/viewSystemUsers");
     }
+
+    // TODO: Add verified Admin page locators and page actions here before implementing step definitions.
 }

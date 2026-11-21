@@ -14,7 +14,7 @@ public abstract class BasePage {
 
     protected BasePage(WebDriver driver) {
         this.driver = driver;
-        int timeout = Integer.parseInt(ConfigReader.get("timeout.seconds", "10"));
+        int timeout = Integer.parseInt(ConfigReader.get("explicitWait", "15"));
         this.wait = WaitUtils.createWait(driver, timeout);
     }
 
@@ -56,3 +56,4 @@ public abstract class BasePage {
     public String getPageTitle() {
         return driver.getTitle();
     }
+}

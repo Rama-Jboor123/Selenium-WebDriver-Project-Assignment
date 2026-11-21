@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 
 public class LoginPage extends BasePage {
 
+    // TODO: Verify these locators against the active OrangeHRM login DOM before production scenarios.
     private final By usernameInput = By.name("username");
     private final By passwordInput = By.name("password");
     private final By loginButton = By.cssSelector("button[type='submit']");
@@ -22,5 +23,14 @@ public class LoginPage extends BasePage {
         sendKeys(usernameInput, username);
         sendKeys(passwordInput, password);
         click(loginButton);
+    }
+
+    public void loginWithConfiguredCredentials() {
+        login(
+                com.ramajboor.selenium.utils.ConfigReader.getCredential(
+                        "ORANGEHRM_USERNAME", "orangehrm.username"),
+                com.ramajboor.selenium.utils.ConfigReader.getCredential(
+                        "ORANGEHRM_PASSWORD", "orangehrm.password")
+        );
     }
 }
