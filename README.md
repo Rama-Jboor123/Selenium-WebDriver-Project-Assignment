@@ -93,3 +93,20 @@ mvn test -Dcucumber.filter.tags=@TC09 -Dbrowser=chrome -Dheadless=true
 TC09 saves a candidate with a unique name and email, searches the Candidates list,
 and verifies the name in the result and the saved email in the candidate profile.
 The scenario removes its own test record from the shared demo after verification.
+
+## TC10 invalid Leave List date range
+
+Configure the OrangeHRM credentials as described above, then run:
+
+```bash
+mvn test -Dcucumber.filter.tags=@TC10 -Dbrowser=chrome -Dheadless=true
+```
+
+TC10 enters a To Date earlier than the From Date using the format displayed by the page.
+It verifies the inline validation and checks that the previous Leave List results remain.
+
+Run the three Recruitment and Leave scenarios in parallel using the existing TestNG runner:
+
+```bash
+mvn test '-Dcucumber.filter.tags=@TC08 or @TC09 or @TC10' -Dbrowser=chrome -Dheadless=true -DparallelThreads=3
+```

@@ -2,6 +2,7 @@ package com.ramajboor.selenium.steps;
 
 import com.ramajboor.selenium.base.DriverFactory;
 import com.ramajboor.selenium.pages.AddCandidatePage;
+import com.ramajboor.selenium.pages.LeaveListPage;
 import com.ramajboor.selenium.pages.RecruitmentPage;
 import io.cucumber.java.After;
 import io.cucumber.java.Scenario;
@@ -11,6 +12,7 @@ import io.cucumber.java.en.When;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,9 @@ public class RecruitmentLeaveSteps {
     private AddCandidatePage addCandidatePage;
     private String candidateFirstName;
     private String candidateEmail;
+    private LeaveListPage leaveListPage;
+    private String previousLeaveResults;
+    private long previousLeaveSearchRequestCount;
 
     @Given("the administrator is on the Add Candidate form")
     public void openAddCandidateForm() {
@@ -80,6 +85,34 @@ public class RecruitmentLeaveSteps {
         recruitmentPage.openListedCandidateProfile();
         Assert.assertEquals(addCandidatePage.getSavedEmail(), candidateEmail,
                 "The candidate profile showed a different email address.");
+    }
+
+    @Given("the administrator is on the Leave List page")
+    public void openLeaveList() {
+        leaveListPage = new LeaveListPage(DriverFactory.getDriver());
+        leaveListPage.openFromMainMenu();
+        previousLeaveResults = leaveListPage.getDisplayedResults();
+        previousLeaveSearchRequestCount = leaveListPage.getSearchRequestCount();
+    }
+
+    @When("the administrator searches for leave from {string} to {string}")
+    public void searchForLeaveDates(String fromDate, String toDate) {
+        leaveListPage.setDateRange(LocalDate.parse(fromDate), LocalDate.parse(toDate));
+        leaveListPage.clickSearch();
+    }
+
+    @Then("the To Date field should show {string}")
+    public void verifyToDateValidation(String expectedMessage) {
+        Assert.assertEquals(leaveListPage.getToDateValidationMessage(), expectedMessage,
+                "The To Date field showed a different validation message.");
+    }
+
+    @Then("the Leave List should keep the previous results")
+    public void verifyInvalidLeaveSearchWasRejected() {
+        Assert.assertTrue(previousLeaveResults.equals(leaveListPage.getDisplayedResults()),
+                "The displayed Leave List results changed after searching with reversed dates.");
+        Assert.assertEquals(leaveListPage.getSearchRequestCount(), previousLeaveSearchRequestCount,
+                "A new Leave List search request completed after submitting reversed dates.");
     }
 
     @After(value = "@TC09", order = 2)

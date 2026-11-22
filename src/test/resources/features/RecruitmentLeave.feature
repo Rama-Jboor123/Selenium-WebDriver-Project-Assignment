@@ -15,3 +15,10 @@ Feature: Recruitment and Leave
     And the administrator searches the Candidates list for the new candidate
     Then the candidate is listed with the submitted name
     And the candidate profile shows the submitted email
+
+  @leave @TC10
+  Scenario: TC10 - Reject a leave search with the end date before the start date
+    Given the administrator is on the Leave List page
+    When the administrator searches for leave from "2026-11-20" to "2026-11-17"
+    Then the To Date field should show "To date should be after from date"
+    And the Leave List should keep the previous results

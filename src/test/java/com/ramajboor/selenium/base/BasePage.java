@@ -9,6 +9,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public abstract class BasePage {
 
+    private static final By FILTER_TOGGLE = By.cssSelector(".oxd-table-filter-header button");
+    private static final By COLLAPSED_FILTER_ICON = By.cssSelector(".bi-caret-down-fill");
+
     protected final WebDriver driver;
     protected final WebDriverWait wait;
 
@@ -28,6 +31,12 @@ public abstract class BasePage {
 
     protected void click(By locator) {
         waitForClickability(locator).click();
+    }
+
+    protected void expandTableFilters() {
+        if (!waitForVisibility(FILTER_TOGGLE).findElements(COLLAPSED_FILTER_ICON).isEmpty()) {
+            click(FILTER_TOGGLE);
+        }
     }
 
     protected void sendKeys(By locator, String text) {
