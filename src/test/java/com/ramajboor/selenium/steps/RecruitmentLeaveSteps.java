@@ -121,6 +121,7 @@ public class RecruitmentLeaveSteps {
             return;
         }
 
+        scenario.log("Cleaning up test candidate " + candidateFullName());
         recruitmentPage.open();
         if (recruitmentPage.searchForCandidate(candidateFirstName, candidateFullName())) {
             recruitmentPage.deleteListedCandidate(candidateFullName());
