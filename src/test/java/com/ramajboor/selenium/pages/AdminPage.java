@@ -5,6 +5,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,8 @@ public class AdminPage extends BasePage {
     private final By searchButton = By.xpath("//button[normalize-space()='Search']");
     private final By tableRows = By.cssSelector(".oxd-table-body .oxd-table-card");
     private final By tableLoader = By.cssSelector(".oxd-loading-spinner, .oxd-table-loader");
-    private String resultsBeforeUpdate = "";
+    private final By resultsSummary = By.cssSelector(
+            ".orangehrm-paper-container .orangehrm-horizontal-padding.orangehrm-vertical-padding > span.oxd-text");
     private final By userRoleDropdown = By.xpath(
             "//label[text()='User Role']/ancestor::div[contains(@class,'oxd-input-group')]//div[contains(@class,'oxd-select-text')]"
     );
@@ -45,7 +47,7 @@ public class AdminPage extends BasePage {
             navigateToPath("web/index.php/admin/viewSystemUsers");
         }
         waitForVisibility(systemUsersHeading);
-        waitForVisibility(tableRows);
+        waitForSearchResults();
     }
 
     public boolean isSystemUsersPageDisplayed() {
@@ -60,11 +62,11 @@ public class AdminPage extends BasePage {
     }
 
     public void clickSearch() {
-        if (resultsBeforeUpdate.isEmpty()) {
-            resultsBeforeUpdate = getCurrentResultsSignature();
-        }
+        WebElement previousSummary = waitForSearchResults();
         click(searchButton);
-        waitForSearchResults(resultsBeforeUpdate);
+        // The summary is replaced after a search even when both sets of rows are identical.
+        wait.until(ExpectedConditions.stalenessOf(previousSummary));
+        waitForSearchResults();
     }
 
     public void searchByUsername(String username) {
@@ -73,7 +75,6 @@ public class AdminPage extends BasePage {
     }
 
     public void selectUserRole(String role) {
-        resultsBeforeUpdate = getCurrentResultsSignature();
         if (driver.findElements(userRoleDropdown).stream().noneMatch(WebElement::isDisplayed)) {
             click(filterToggle);
         }
@@ -174,45 +175,8 @@ public class AdminPage extends BasePage {
         return "";
     }
 
-    private void waitForSearchResults() {
-        waitForSearchResults("");
-    }
-
-    private void waitForSearchResults(String previousSignature) {
-        wait.until(currentDriver -> {
-            List<WebElement> loaders = currentDriver.findElements(tableLoader);
-            for (WebElement loader : loaders) {
-                if (loader.isDisplayed()) {
-                    return false;
-                }
-            }
-            return true;
-        });
-
-        wait.until(currentDriver -> {
-            List<WebElement> rows = currentDriver.findElements(tableRows);
-            if (rows.isEmpty()) {
-                return false;
-            }
-            for (WebElement row : rows) {
-                if (row.isDisplayed() && !row.getText().trim().isEmpty()) {
-                    if (previousSignature.isEmpty()) {
-                        return true;
-                    }
-                    return !getCurrentResultsSignature().equals(previousSignature);
-                }
-            }
-            return false;
-        });
-    }
-
-    private String getCurrentResultsSignature() {
-        StringBuilder signature = new StringBuilder();
-        for (WebElement row : driver.findElements(tableRows)) {
-            if (row.isDisplayed()) {
-                signature.append(row.getText()).append('|');
-            }
-        }
-        return signature.toString();
+    private WebElement waitForSearchResults() {
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(tableLoader));
+        return waitForVisibility(resultsSummary);
     }
 }

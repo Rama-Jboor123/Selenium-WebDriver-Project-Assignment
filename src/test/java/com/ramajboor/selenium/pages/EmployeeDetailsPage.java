@@ -12,6 +12,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 public class EmployeeDetailsPage extends BasePage {
 
     private static final By HEADING = By.xpath("//h6[normalize-space()='Personal Details']");
+    private static final By FORM_LOADER = By.xpath(
+            "//h6[normalize-space()='Personal Details']/.."
+                    + "//*[contains(concat(' ', normalize-space(@class), ' '), ' oxd-form-loader ')]");
     private static final By FIRST_NAME = By.name("firstName");
     private static final By MIDDLE_NAME = By.name("middleName");
     private static final By LAST_NAME = By.name("lastName");
@@ -31,8 +34,10 @@ public class EmployeeDetailsPage extends BasePage {
 
     public void waitForDetails() {
         waitForVisibility(HEADING);
-        wait.until(ExpectedConditions.refreshed(
-                currentDriver -> !currentDriver.findElement(FIRST_NAME).getDomProperty("value").isBlank()));
+        wait.until(ExpectedConditions.and(
+                ExpectedConditions.invisibilityOfElementLocated(FORM_LOADER),
+                ExpectedConditions.refreshed(
+                        currentDriver -> !currentDriver.findElement(FIRST_NAME).getDomProperty("value").isBlank())));
     }
 
     public String getFirstName() {
@@ -52,6 +57,7 @@ public class EmployeeDetailsPage extends BasePage {
     }
 
     public void updateMiddleName(String middleName) {
+        waitForDetails();
         WebElement input = waitForClickability(MIDDLE_NAME);
         Platform platform = ((HasCapabilities) driver).getCapabilities().getPlatformName();
         Keys selectAllModifier = Platform.MAC.is(platform) ? Keys.COMMAND : Keys.CONTROL;
