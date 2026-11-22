@@ -3,11 +3,14 @@ package com.ramajboor.selenium.pages;
 import com.ramajboor.selenium.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class AddCandidatePage extends BasePage {
 
     private static final String ADD_CANDIDATE_PATH = "/recruitment/addCandidate";
     private static final By HEADING = By.xpath("//h6[normalize-space()='Add Candidate']");
+    private static final By PROFILE_HEADING = By.xpath("//*[self::h5 or self::h6][normalize-space()='Candidate Profile']");
     private static final By FIRST_NAME = By.name("firstName");
     private static final By LAST_NAME = By.name("lastName");
     private static final String EMAIL_GROUP = "//label[normalize-space()='Email']"
@@ -42,5 +45,16 @@ public class AddCandidatePage extends BasePage {
     public boolean isFormDisplayed() {
         return driver.getCurrentUrl().endsWith(ADD_CANDIDATE_PATH)
                 && waitForVisibility(HEADING).isDisplayed();
+    }
+
+    public void waitForCandidateProfile() {
+        waitForVisibility(PROFILE_HEADING);
+    }
+
+    public String getSavedEmail() {
+        waitForCandidateProfile();
+        WebElement emailInput = waitForVisibility(EMAIL);
+        wait.until(ExpectedConditions.not(ExpectedConditions.domPropertyToBe(emailInput, "value", "")));
+        return emailInput.getDomProperty("value");
     }
 }
