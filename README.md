@@ -52,3 +52,19 @@ mvn test
 ```
 
 For IntelliJ IDEA, create `src/test/resources/config.local.properties` with `orangehrm.username` and `orangehrm.password`, or set `ORANGEHRM_USERNAME` and `ORANGEHRM_PASSWORD` in the test run configuration environment. The local file is gitignored and must not be committed.
+
+## TC03 cross-browser execution
+
+Run TC03 sequentially in Chrome, Firefox, and Edge:
+
+```powershell
+.\run-tc03-crossbrowser.ps1
+```
+
+Per-browser reports and screenshots are stored under `target/cross-browser-reports/TC03/<browser>/`. Individual browser commands can also be run directly:
+
+```bash
+mvn test "-Dcucumber.filter.tags=@TC03" -Dbrowser=chrome
+mvn test "-Dcucumber.filter.tags=@TC03" -Dbrowser=firefox
+mvn test "-Dcucumber.filter.tags=@TC03" -Dbrowser=edge
+```
