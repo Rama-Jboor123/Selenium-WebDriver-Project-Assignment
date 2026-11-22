@@ -12,8 +12,6 @@ public class RecruitmentPage extends BasePage {
 
     private static final By RECRUITMENT_MENU = By.cssSelector("a[href$='/recruitment/viewRecruitmentModule']");
     private static final By ADD_BUTTON = By.xpath("//button[normalize-space()='Add']");
-    private static final By FILTER_TOGGLE = By.cssSelector(".oxd-table-filter-header button");
-    private static final By COLLAPSED_FILTER_ICON = By.cssSelector(".bi-caret-down-fill");
     private static final By CANDIDATE_NAME_INPUT = By.cssSelector("form input[placeholder='Type for hints...']");
     private static final By CANDIDATE_NAME_SUGGESTIONS = By.xpath("//form//*[@role='listbox']"
             + "//*[@role='option' and not(starts-with(normalize-space(), 'Searching'))]");
@@ -86,9 +84,7 @@ public class RecruitmentPage extends BasePage {
     }
 
     private List<WebElement> findCandidateNameSuggestions(String name) {
-        if (!waitForVisibility(FILTER_TOGGLE).findElements(COLLAPSED_FILTER_ICON).isEmpty()) {
-            click(FILTER_TOGGLE);
-        }
+        expandTableFilters();
         sendKeys(CANDIDATE_NAME_INPUT, name);
         return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(CANDIDATE_NAME_SUGGESTIONS));
     }
