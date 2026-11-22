@@ -16,6 +16,10 @@ public class RecruitmentPage extends BasePage {
     private static final By CANDIDATE_NAME_SUGGESTIONS = By.xpath("//form//*[@role='listbox']"
             + "//*[@role='option' and not(starts-with(normalize-space(), 'Searching'))]");
     private static final By SEARCH_BUTTON = By.xpath("//form//button[@type='submit' and normalize-space()='Search']");
+    private static final By RESULTS_SUMMARY = By.xpath("//span[normalize-space()='No Records Found'"
+            + " or contains(normalize-space(), ') Record Found')"
+            + " or contains(normalize-space(), ') Records Found')]");
+    private static final By TABLE_LOADER = By.cssSelector(".oxd-loading-spinner, .oxd-table-loader");
     private static final By SINGLE_RECORD_COUNT = By.xpath("//span[normalize-space()='(1) Record Found']");
     private static final By CANDIDATE_ROWS = By.cssSelector(".oxd-table-card");
     // The compact layout labels its cells. The desktop Candidate column is the third cell.
@@ -84,8 +88,13 @@ public class RecruitmentPage extends BasePage {
     }
 
     private List<WebElement> findCandidateNameSuggestions(String name) {
+        waitForVisibility(RESULTS_SUMMARY);
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(TABLE_LOADER));
         expandTableFilters();
-        sendKeys(CANDIDATE_NAME_INPUT, name);
+        WebElement nameInput = waitForClickability(CANDIDATE_NAME_INPUT);
+        nameInput.clear();
+        nameInput.click();
+        nameInput.sendKeys(name);
         return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(CANDIDATE_NAME_SUGGESTIONS));
     }
 }
