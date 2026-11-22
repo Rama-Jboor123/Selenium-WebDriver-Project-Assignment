@@ -17,6 +17,15 @@ public class RecruitmentPage extends BasePage {
     private static final By CANDIDATE_NAME_INPUT = By.cssSelector("form input[placeholder='Type for hints...']");
     private static final By CANDIDATE_NAME_SUGGESTIONS = By.xpath("//form//*[@role='listbox']"
             + "//*[@role='option' and not(starts-with(normalize-space(), 'Searching'))]");
+    private static final By SEARCH_BUTTON = By.xpath("//form//button[@type='submit' and normalize-space()='Search']");
+    private static final By SINGLE_RECORD_COUNT = By.xpath("//span[normalize-space()='(1) Record Found']");
+    private static final By CANDIDATE_ROWS = By.cssSelector(".oxd-table-card");
+    // The compact layout labels its cells. The desktop Candidate column is the third cell.
+    private static final By CANDIDATE_NAME_CELL = By.xpath(".//div[@class='header' and normalize-space()='Candidate']"
+            + "/following-sibling::div[@class='data'] | .//*[@role='cell'][3]/div[not(@class)]");
+    private static final By VIEW_CANDIDATE = By.cssSelector("button:has(.bi-eye-fill)");
+    private static final By DELETE_CANDIDATE = By.cssSelector("button:has(.bi-trash)");
+    private static final By CONFIRM_DELETE = By.xpath("//button[normalize-space()='Yes, Delete']");
 
     public RecruitmentPage(WebDriver driver) {
         super(driver);
@@ -35,13 +44,52 @@ public class RecruitmentPage extends BasePage {
     }
 
     public List<String> lookUpCandidateName(String name) {
+        return findCandidateNameSuggestions(name).stream().map(WebElement::getText).toList();
+    }
+
+    public boolean searchForCandidate(String firstName, String fullName) {
+        var matchingSuggestion = findCandidateNameSuggestions(firstName).stream()
+                .filter(suggestion -> fullName.equals(suggestion.getText()))
+                .findFirst();
+        if (matchingSuggestion.isEmpty()) {
+            return false;
+        }
+
+        matchingSuggestion.get().click();
+        click(SEARCH_BUTTON);
+        waitForVisibility(SINGLE_RECORD_COUNT);
+        return true;
+    }
+
+    public String getListedCandidateName() {
+        return getSingleCandidateRow().findElement(CANDIDATE_NAME_CELL).getText();
+    }
+
+    public void openListedCandidateProfile() {
+        getSingleCandidateRow().findElement(VIEW_CANDIDATE).click();
+    }
+
+    public void deleteListedCandidate(String fullName) {
+        WebElement row = getSingleCandidateRow();
+        String listedName = row.findElement(CANDIDATE_NAME_CELL).getText();
+        if (!fullName.equals(listedName)) {
+            throw new IllegalStateException("Expected to delete " + fullName + " but found " + listedName);
+        }
+
+        row.findElement(DELETE_CANDIDATE).click();
+        click(CONFIRM_DELETE);
+        wait.until(ExpectedConditions.numberOfElementsToBe(CANDIDATE_ROWS, 0));
+    }
+
+    private WebElement getSingleCandidateRow() {
+        return wait.until(ExpectedConditions.numberOfElementsToBe(CANDIDATE_ROWS, 1)).getFirst();
+    }
+
+    private List<WebElement> findCandidateNameSuggestions(String name) {
         if (!waitForVisibility(FILTER_TOGGLE).findElements(COLLAPSED_FILTER_ICON).isEmpty()) {
             click(FILTER_TOGGLE);
         }
         sendKeys(CANDIDATE_NAME_INPUT, name);
-        return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(CANDIDATE_NAME_SUGGESTIONS))
-                .stream()
-                .map(WebElement::getText)
-                .toList();
+        return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(CANDIDATE_NAME_SUGGESTIONS));
     }
 }

@@ -81,3 +81,15 @@ TC08 submits the Add Candidate form with a unique first name and an invalid emai
 It checks the inline email validation, confirms that the form stays open, and looks up
 the name in a fresh Candidates view to verify that no record was saved.
 Cucumber writes the report to `target/cucumber-report/cucumber.html`.
+
+## TC09 candidate creation and search
+
+Configure the OrangeHRM credentials as described above, then run:
+
+```bash
+mvn test -Dcucumber.filter.tags=@TC09 -Dbrowser=chrome -Dheadless=true
+```
+
+TC09 saves a candidate with a unique name and email, searches the Candidates list,
+and verifies the name in the result and the saved email in the candidate profile.
+The scenario removes its own test record from the shared demo after verification.
