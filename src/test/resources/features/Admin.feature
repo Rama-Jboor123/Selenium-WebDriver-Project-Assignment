@@ -12,3 +12,10 @@ Feature: Admin User Management
     When the administrator filter using Role "Admin"
     Then the filter results should contain Role "Admin"
     And all displayed role should match "Admin"
+
+  @TC03 @authenticated @crossBrowser
+  Scenario: TC03 - Prevent adding a user with empty required fields
+    Given the administrator is on the Add User page
+    When the administrator submits the Add User form without filling required fields
+    Then validation messages should appear for all required user fields
+    And the administrator should remain on the Add User page

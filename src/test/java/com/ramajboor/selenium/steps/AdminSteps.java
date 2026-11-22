@@ -2,6 +2,7 @@ package com.ramajboor.selenium.steps;
 
 import com.ramajboor.selenium.base.DriverFactory;
 import com.ramajboor.selenium.pages.AdminPage;
+import com.ramajboor.selenium.pages.AddUserPage;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -12,6 +13,7 @@ import java.util.List;
 public class AdminSteps {
 
     private AdminPage adminPage;
+    private AddUserPage addUserPage;
 
     @Given("the administrator is on the System Users page")
     public void theAdministratorIsOnTheSystemUsersPage() {
@@ -70,6 +72,36 @@ public class AdminSteps {
         Assert.assertTrue(displayedRoles.contains(expectedRole),
                 "Expected role '" + expectedRole
                         + "' was not found in results: " + displayedRoles);
+    }
+
+    @Given("the administrator is on the Add User page")
+    public void theAdministratorIsOnTheAddUserPage() {
+        addUserPage = new AddUserPage(DriverFactory.getDriver());
+        addUserPage.open();
+        Assert.assertTrue(addUserPage.isAddUserPageDisplayed(),
+                "The Add User form was not displayed.");
+    }
+
+    @When("the administrator submits the Add User form without filling required fields")
+    public void submitEmptyAddUserForm() {
+        addUserPage.clickSave();
+    }
+
+    @Then("validation messages should appear for all required user fields")
+    public void validationMessagesShouldAppearForAllRequiredUserFields() {
+        var messages = addUserPage.getRequiredFieldValidationMessages();
+        Assert.assertFalse(messages.isEmpty(),
+                "No required-field validation messages were displayed.");
+        Assert.assertTrue(addUserPage.areRequiredFieldsShowingErrors(),
+                "Required-field validation messages did not contain the expected 'Required' text: " + messages);
+        Assert.assertEquals(messages.keySet().size(), 6,
+                "The Add User form did not show validation for all 6 required fields: " + messages);
+    }
+
+    @Then("the administrator should remain on the Add User page")
+    public void administratorShouldRemainOnAddUserPage() {
+        Assert.assertTrue(addUserPage.isAddUserPageDisplayed(),
+                "The Add User form closed or navigation moved away after validation.");
     }
 
     @Then("all displayed role should match {string}")
