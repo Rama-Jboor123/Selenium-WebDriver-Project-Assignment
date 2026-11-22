@@ -68,3 +68,16 @@ mvn test "-Dcucumber.filter.tags=@TC03" -Dbrowser=chrome
 mvn test "-Dcucumber.filter.tags=@TC03" -Dbrowser=firefox
 mvn test "-Dcucumber.filter.tags=@TC03" -Dbrowser=edge
 ```
+
+## TC08 candidate email validation
+
+Configure the OrangeHRM credentials as described above, then run:
+
+```bash
+mvn test -Dcucumber.filter.tags=@TC08 -Dbrowser=chrome -Dheadless=true
+```
+
+TC08 submits the Add Candidate form with a unique first name and an invalid email.
+It checks the inline email validation, confirms that the form stays open, and looks up
+the name in a fresh Candidates view to verify that no record was saved.
+Cucumber writes the report to `target/cucumber-report/cucumber.html`.
